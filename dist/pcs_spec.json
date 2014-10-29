@@ -1,0 +1,389 @@
+{
+    "swagger": 2,
+    "info": {
+        "title": "PCS CM API",
+        "description": "Add content marketing capabilities to your canvas",
+        "version": "2.0.0"
+    },
+    "host": "pcs-yql.media.yahoo.com",
+    "schemes": [
+        "https"
+    ],
+    "basePath": "/",
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/v2/campaign/flightdates/{campaignId}": {
+            "put": {
+                "summary": "Change flight dates for a campaign and tell other canvases (e.g. magazines)",
+                "parameters": [
+                    {
+                        "name": "campaignId",
+                        "description": "Gemini campaign id that needs updating",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Flight dates successfully changed",
+                        "schema": {
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "value": "ok"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/campaign/expando/{campaignId}": {
+            "put": {
+                "summary": "Create expando campaign and update canvases",
+                "parameters": [
+                    {
+                        "name": "campaignId",
+                        "description": "Gemini campaign id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "ExpandoCampaign"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Campaign successfully pushed to canvases",
+                        "schema": {
+                            "$ref": "ExpandoCampaign"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/campaign/nonexpando/{campaignId}": {
+            "put": {
+                "summary": "Create non-expando campaign and update canvases",
+                "description": "Expects a campaign JSON resource and updates dependent canvases (i.e. magazines) with the campaign creative",
+                "parameters": [
+                    {
+                        "name": "campaignId",
+                        "description": "Gemini campaign id to use when creating in canvases",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "TumblrCampaign"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Campaign successfully pushed to canvases",
+                        "schema": {
+                            "$ref": "TumblrCampaign"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/post_detail": {
+            "get": {
+                "summary": "Fetch a Tumblr Post",
+                "description": "Returns a JSON representation of some of the details of a Tumblr Post object stored in Content Agility",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "query",
+                        "description": "Tumblr Post Id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "tags": [
+                    "CM Tumblr"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A YQL result with a Tumblr Post",
+                        "schema": {
+                            "properties": {
+                                "tumblr_post": {
+                                    "properties": {
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "TumblrPost"
+                                            }
+                                        },
+                                        "error": {
+                                            "type": null
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Tumblr Post Id not found in CA",
+                        "schema": {
+                            "properties": {
+                                "tumblr_post": {
+                                    "properties": {
+                                        "results": {
+                                            "type": null
+                                        },
+                                        "error": {
+                                            "$ref": "Error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/campaign/{campaignId}": {
+            "get": {
+                "summary": "Fetch content marketing campaign from PCS DB",
+                "parameters": [
+                    {
+                        "name": "campaignId",
+                        "description": "Gemini campaign id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fetch a content marketing campaign",
+                        "schema": {
+                            "$ref": "ExpandoCampaign"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "TumblrCampaign": {
+            "properties": {
+                "attribution_name": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "TumblrContentItem"
+                    }
+                },
+                "social": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "SocialItem"
+                    }
+                }
+            }
+        },
+        "ExpandoCampaign": {
+            "properties": {
+                "about_description": {
+                    "type": "string"
+                },
+                "campaign_name": {
+                    "type": "string",
+                    "description": "Name for this campaign. Used in listing campaigns, but not what an end user sees."
+                },
+                "logo_link_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Link to advertiser or campaign's logo"
+                },
+                "campaign_id": {
+                    "type": "integer",
+                    "description": "The Gemini campaign id"
+                },
+                "advertiser_id": {
+                    "type": "integer",
+                    "description": "The Gemini advertiser id"
+                },
+                "flight_start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "ISO8601 formatted start date for campaign"
+                },
+                "flight_end_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "ISO8601 formatted end date for campaign"
+                },
+                "social": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "SocialItem"
+                    }
+                },
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "ExpandoContentItem"
+                    }
+                }
+            }
+        },
+        "SocialItem": {
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The URL to this social media page"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "tumblr facebook twitter gplus flickr instagram"
+                    ]
+                }
+            },
+            "required": [
+                "url type"
+            ]
+        },
+        "TumblrContentItem": {
+            "properties": {
+                "uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Content Agility content id for Tumblr Post that's part of this campaign"
+                },
+                "perma_link_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Permalink to the content that the ad will link to"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Title of the content. Magazines uses this in the tile and the expando article page if it's an expando campaign."
+                }
+            },
+            "required": [
+                "attribution_name"
+            ]
+        },
+        "ExpandoContentItem": {
+            "properties": {
+                "attribution_name": {
+                    "type": "string",
+                    "description": "Name to use after \"Sponsored by \" when displaying content"
+                },
+                "uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Content Agility content id for Tumblr Post that's part of this campaign"
+                },
+                "perma_link_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Permalink to the content that the ad will link to"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Title of the content. Magazines uses this in the tile and the expando article page if it's an expando campaign."
+                }
+            },
+            "required": [
+                "attribution_name perma_link_url title uuid"
+            ]
+        },
+        "TumblrPost": {
+            "properties": {
+                "blog_name": {
+                    "type": "string",
+                    "description": "The Tumblr blog id (e.g. ymm-team in ymm-team.tumblr.com)"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "tumblr_text",
+                        "tumblr_photoset",
+                        "tumblr_video"
+                    ],
+                    "description": "A type designation for the Tumblr post"
+                },
+                "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "CA UUID for this post"
+                },
+                "provider_id": {
+                    "type": "string",
+                    "description": "CP provider id"
+                },
+                "tumblr_id": {
+                    "type": "string",
+                    "description": "The post id for this post on Tumblr"
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The permalink to the original Tumblr post"
+                }
+            }
+        },
+        "Error": {
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
