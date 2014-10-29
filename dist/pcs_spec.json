@@ -1,5 +1,5 @@
 {
-    "swagger": 2,
+    "swagger": 2.0,
     "info": {
         "title": "PCS CM API",
         "description": "Add content marketing capabilities to your canvas",
@@ -9,7 +9,7 @@
     "schemes": [
         "https"
     ],
-    "basePath": "/",
+    "basePath": "",
     "produces": [
         "application/json"
     ],
@@ -17,10 +17,15 @@
         "/v2/campaign/flightdates/{campaignId}": {
             "put": {
                 "summary": "Change flight dates for a campaign and tell other canvases (e.g. magazines)",
+                "tags": [
+                    "CM",
+                    "CM Magitor"
+                ],
                 "parameters": [
                     {
                         "name": "campaignId",
                         "description": "Gemini campaign id that needs updating",
+                        "type": "number",
                         "in": "path",
                         "required": true
                     }
@@ -49,15 +54,21 @@
         "/v2/campaign/expando/{campaignId}": {
             "put": {
                 "summary": "Create expando campaign and update canvases",
+                "tags": [
+                    "CM",
+                    "CM Magitor"
+                ],
                 "parameters": [
                     {
                         "name": "campaignId",
                         "description": "Gemini campaign id",
+                        "type": "number",
                         "in": "path",
                         "required": true
                     },
                     {
                         "in": "body",
+                        "name": "body",
                         "required": true,
                         "schema": {
                             "$ref": "ExpandoCampaign"
@@ -84,15 +95,21 @@
             "put": {
                 "summary": "Create non-expando campaign and update canvases",
                 "description": "Expects a campaign JSON resource and updates dependent canvases (i.e. magazines) with the campaign creative",
+                "tags": [
+                    "CM",
+                    "CM Magitor"
+                ],
                 "parameters": [
                     {
                         "name": "campaignId",
                         "description": "Gemini campaign id to use when creating in canvases",
                         "in": "path",
+                        "type": "number",
                         "required": true
                     },
                     {
                         "in": "body",
+                        "name": "body",
                         "required": true,
                         "schema": {
                             "$ref": "TumblrCampaign"
@@ -129,6 +146,7 @@
                     }
                 ],
                 "tags": [
+                    "CM",
                     "CM Tumblr"
                 ],
                 "responses": {
@@ -145,7 +163,7 @@
                                             }
                                         },
                                         "error": {
-                                            "type": null
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -159,7 +177,7 @@
                                 "tumblr_post": {
                                     "properties": {
                                         "results": {
-                                            "type": null
+                                            "type": "string"
                                         },
                                         "error": {
                                             "$ref": "Error"
@@ -181,9 +199,14 @@
         "/v3/campaign/{campaignId}": {
             "get": {
                 "summary": "Fetch content marketing campaign from PCS DB",
+                "tags": [
+                    "CM",
+                    "CM PCS"
+                ],
                 "parameters": [
                     {
                         "name": "campaignId",
+                        "type": "number",
                         "description": "Gemini campaign id",
                         "in": "path",
                         "required": true

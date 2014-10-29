@@ -22,15 +22,30 @@ class SwaggerUi extends Backbone.Router
     @options = options
 
     # Set the callbacks
-    @options.success = => @render()
+    @options.success = => 
+      @render()
     @options.progress = (d) => @showMessage(d)
-    @options.failure = (d) => @onLoadFailure(d)
+    @options.failure = (d) => 
+      if @api and @api.isValid is false
+        log "not a valid 2.0 spec, loading legacy client"
+        @api = new SwaggerApi(@options)
+        @api.build()
+      else
+        @onLoadFailure(d)
 
     # Create view to handle the header inputs
     @headerView = new HeaderView({el: $('#header')})
 
     # Event handler for when the baseUrl/apiKey is entered by user
     @headerView.on 'update-swagger-ui', (data) => @updateSwaggerUi(data)
+
+  # Set an option after initializing
+  setOption: (option,value) ->
+      @options[option] = value
+
+  # Get the value of a previously set option
+  getOption: (option) ->
+      @options[option]
 
   # Event handler for when url/key is received from user
   updateSwaggerUi: (data) ->
@@ -47,15 +62,15 @@ class SwaggerUi extends Backbone.Router
 
     @options.url = url
     @headerView.update(url)
-    @api = new SwaggerApi(@options)
-    @api.build()
-    @api
+
+    @api = new SwaggerClient(@options)
+    @api.build()    
 
   # This is bound to success handler for SwaggerApi
   #  so it gets called when SwaggerApi completes loading
   render:() ->
     @showMessage('Finished Loading Resource Information. Rendering Swagger UI...')
-    @mainView = new MainView({model: @api, el: $('#' + @dom_id)}).render()
+    @mainView = new MainView({model: @api, el: $('#' + @dom_id), swaggerOptions: @options}).render()
     @showMessage()
     switch @options.docExpansion
       when "full" then Docs.expandOperationsForResource('')
